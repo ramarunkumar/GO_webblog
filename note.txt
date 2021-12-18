@@ -1,0 +1,308 @@
+package main
+
+import (
+	"database/sql"
+	"fmt"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq"
+)
+
+var err error
+
+const (
+	host     = "localhost"
+	port     = 5432
+	users    = "postgres"
+	password = "qwerty123"
+	dbname   = "web_blog"
+)
+
+var r *gin.Engine
+
+func main() {
+
+	r = gin.Default()
+	r.LoadHTMLGlob("templates/*")
+	// initDB()
+
+	initializeRoutes()
+	fmt.Println(dbCon())
+	read()
+
+	r.Run()
+}
+func read() {
+	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
+	db, err := sql.Open("postgres", dbinfo)
+	if err != nil {
+		fmt.Println("read connected failed....", err)
+	} else {
+		fmt.Println("read connected...", db)
+	}
+	var id, author_id, blog_id int
+	var name, username, password, title, content, created_on string
+
+	stmt := "SELECT * FROM users,blog"
+	row := db.QueryRow(stmt).Scan(&id, &name, &username, &password, &author_id, &blog_id, &title, &content, &created_on)
+	if row != nil {
+		fmt.Println("inserted", row)
+	}
+	fmt.Println(".....................................................................")
+	fmt.Println("id:", id, "name:", name, "username:", username, "password:", password)
+	fmt.Println("author_id:", author_id, "blog_id:", blog_id, "title:", title, "content:", content, "created_on", created_on)
+	fmt.Println("........................................................................")
+
+}
+
+func dbCon() (db *sql.DB) {
+	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
+	db, err := sql.Open("postgres", dbinfo)
+	if err != nil {
+		fmt.Println("not connected....", err)
+	} else {
+		fmt.Println("connected...", db)
+	}
+
+	return db
+}
+
+func render(c *gin.Context, data gin.H, templateName string) {
+	loggedInInterface, _ := c.Get("is_logged_in")
+	data["is_logged_in"] = loggedInInterface.(bool)
+
+	switch c.Request.Header.Get("Accept") {
+	case "application/json":
+		c.JSON(http.StatusOK, data["payload"])
+	case "application/xml":
+		c.XML(http.StatusOK, data["payload"])
+	default:
+		c.HTML(http.StatusOK, templateName, data)
+	}
+}
+===============================================signup======================================================================
+func showRegistrationPage(c *gin.Context) {
+	render(c, gin.H{
+		"title": "Register"}, "signup.html")
+
+}
+
+func register(c *gin.Context) {
+
+	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
+	db, err := sql.Open("postgres", dbinfo)
+	if db != nil {
+		fmt.Println("register database error", err)
+	} else {
+		fmt.Println("register database no error", db)
+	}
+
+	name := c.PostForm("name")
+	username := c.PostForm("username")
+	password := c.PostForm("password")
+
+	u := User{Name: name, Username: username, Password: password}
+	fmt.Println(u)
+
+	if _, err := registerNewUser(name, username, password); err == nil {
+
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 8)
+		fmt.Println(err)
+
+		stmt := "INSERT INTO users(name, username, password) VALUES ('" + name + "','" + username + "', '" + password + "')"
+		fmt.Println("query ", stmt)
+		var dbname string
+		var dbusername string
+		var dbpassword string
+
+		row := db.QueryRow(stmt)
+		fmt.Println(&dbname, &dbusername, &hashedPassword, &dbpassword)
+
+		if row != nil {
+			fmt.Println("inserted succesfully", row.Scan(&u))
+		}
+		token := generateSessionToken()
+		c.SetCookie("token", token, 3600, "", "", false, true)
+		c.Set("is_logged_in", true)
+
+		render(c, gin.H{
+			"title": "Successful registration &  Login "}, "login-successful.html")
+
+	} else {
+		fmt.Println("reg error", err)
+		c.HTML(http.StatusBadRequest, "signup.html", gin.H{
+			"ErrorTitle":   "Registration Failed",
+			"ErrorMessage": err.Error()})
+
+	}
+
+}
+
+func registerNewUser(name, username, password string) (*User, error) {
+
+	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
+	db, err := sql.Open("postgres", dbinfo)
+	if err != nil {
+		fmt.Println(" database error", err)
+	} else {
+		fmt.Println("registernewuser database no error", db)
+	}
+
+	if strings.TrimSpace(password) == "" {
+		return nil, errors.New("The password can't be empty")
+	} else if UsernameAvailable(username) {
+		return nil, errors.New("The username isn't available")
+	}
+
+	u := User{Name: name, Username: username, Password: password}
+	fmt.Println("registernew user", db)
+
+	return &u, nil
+}
+
+func UsernameAvailable(username string) bool {
+	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
+	db, err := sql.Open("postgres", dbinfo)
+
+	if err != nil {
+		fmt.Println(" usernameavailable db error", err)
+	} else {
+		fmt.Println(" usernameavailable no error", db)
+	}
+	// SELECT password FROM public.users WHERE username='ram';
+
+	stmt := "SELECT username FROM users WHERE username = ('" + username + "')"
+	err = db.QueryRow(stmt).Scan(&username)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			fmt.Println("isusername error", err)
+		}
+		return false
+	}
+
+	return true
+}
+// func isUserValid(username, password string) bool {
+// 	for _, u := range userList {
+// 		if u.Username == username && u.Password == password {
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }
+// -- DROP TABLE IF EXISTS public.users;
+
+// CREATE TABLE IF NOT EXISTS public.users
+// (
+//     id integer NOT NULL DEFAULT nextval('users_id_seq'::regclass),
+//     name text COLLATE pg_catalog."default" NOT NULL,
+//     username text COLLATE pg_catalog."default" NOT NULL,
+//     password character varying(255) COLLATE pg_catalog."default" NOT NULL,
+//     CONSTRAINT users_pkey PRIMARY KEY (id)
+// )
+
+// TABLESPACE pg_default;
+
+// ALTER TABLE IF EXISTS public.users
+//     OWNER to postgres;
+=================================login============================================
+func showLoginPage(c *gin.Context) {
+
+	render(c, gin.H{
+		"title": "Login",
+	}, "login.html")
+
+}
+
+func login(c *gin.Context) {
+	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
+	db, err := sql.Open("postgres", dbinfo)
+	if db != nil {
+		fmt.Println("login database error", err)
+	} else {
+		fmt.Println("login database no error", db)
+	}
+	username := c.PostForm("username")
+	password := c.PostForm("password")
+
+	if isUserValid(username, password) {
+		token := generateSessionToken()
+		c.SetCookie("token", token, 3600, "", "", false, true)
+		c.Set("is_logged_in", true)
+
+		render(c, gin.H{
+			"title": "Successful Login"}, "login-successful.html")
+
+	} else {
+
+		c.HTML(http.StatusBadRequest, "login.html", gin.H{
+			"ErrorTitle":   "Login Failed",
+			"ErrorMessage": "Invalid credentials provided"})
+	}
+
+}
+
+func isUserValid(username, password string) bool {
+	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
+	db, err := sql.Open("postgres", dbinfo)
+	if db != nil {
+		fmt.Println("isuservalid database error", err)
+	} else {
+		fmt.Println("isuservalid database no error", db)
+	}
+
+	u := User{Username: username, Password: password}
+	stmt := "SELECT password From users WHERE username='" + username + "'"
+	row := db.QueryRow(stmt)
+	tmp := &u
+	err = row.Scan(&tmp.Password)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false
+		}
+	}
+	if err = bcrypt.CompareHashAndPassword([]byte(tmp.Password), []byte(u.Password)); err != nil {
+		return false
+	}
+	fmt.Println("isuservalid", db)
+
+	return true
+}
+func logout(c *gin.Context) {
+	c.SetCookie("token", "", -1, "", "", false, true)
+
+	c.Redirect(http.StatusTemporaryRedirect, "/")
+}
+
+// func art() {
+// 	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
+// 	db, err := sql.Open("postgres", dbinfo)
+// 	if err != nil {
+// 		fmt.Println("not connected....", err)
+// 	} else {
+// 		fmt.Println("connected...", db)
+// 	}
+// 	selDB, err := db.Query("SELECT * FROM blog ")
+// 	if err != nil {
+// 		panic(err.Error())
+// 	}
+// 	emp := Article{}
+// 	res := []Article{}
+// 	for selDB.Next() {
+// 		var author_id, blog_id int
+
+// 		var title, content, created_on string
+// 		err = selDB.Scan(&author_id, &blog_id, &title, &content, &created_on)
+// 		if err != nil {
+// 			panic(err.Error())
+// 		}
+// 		emp.Article_id = author_id
+// 		emp.Blog_id = blog_id
+// 		emp.Title = title
+// 		emp.Content = content
+
+// 		fmt.Println(author_id, blog_id, title, content)
+// 		res = append(res, emp)
+// 	}
+// }

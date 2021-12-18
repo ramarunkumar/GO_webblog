@@ -1,0 +1,24 @@
+
+{{ template "header.html" .}}
+
+{{range .payload }}
+<div class="container">
+  <div class="card">
+    <div class="card-header">
+      
+    </div>
+    
+    <div class="card-body">
+      <h1>{{.Blog_id}}</h2>
+      <h5 class="card-title">{{.Title}}</h5>
+      <p class="card-text">{{.Content}}</p>
+      <a href="/article/view/{{.Blog_id}}" class="btn btn-primary ">Read More</a>
+     
+    </div>
+  </div>
+</div>
+{{end}}
+
+{{ template "footer.html" .}}
+
+
