@@ -14,16 +14,20 @@
     <form class="form" action="/article/create" method="POST">
       <div class="form-group">
         <label for="title">Title</label>
+     
         <input type="text" class="form-control" id="title" name="title" placeholder="Title">
       </div>
+     
       <div class="form-group">
         <label for="content">Content</label>
+      
         <textarea name="content" class="form-control" rows="10" id="content" placeholder="Article Content"></textarea>
       </div>
+      <br>
       <button type="submit" class="btn btn-primary pt-2">Submit</button>
     </form>
   </div>
 </div>  
 </div>
-    
+
 {{ template "footer.html" .}}

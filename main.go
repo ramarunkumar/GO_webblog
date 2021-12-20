@@ -25,9 +25,9 @@ func main() {
 
 	r = gin.Default()
 	r.LoadHTMLGlob("templates/*")
+	r.Static("/assets", "./assets")
 	initializeRoutes()
-
-	r.Run(":5000")
+	r.Run()
 }
 
 func dbCon() (db *sql.DB) {
@@ -38,8 +38,8 @@ func dbCon() (db *sql.DB) {
 	} else {
 		fmt.Println("connected...", db)
 	}
-
 	return db
+
 }
 
 func render(c *gin.Context, data gin.H, templateName string) {

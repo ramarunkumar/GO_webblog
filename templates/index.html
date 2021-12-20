@@ -2,21 +2,24 @@
 {{ template "header.html" .}}
 
 {{range .payload }}
-<div class="container">
+<div class="container pt-5">
   <div class="card">
     <div class="card-header">
-      
+      <h2>{{.Blog_id}}</h2>
     </div>
-    
-    <div class="card-body">
-      <h1>{{.Blog_id}}</h2>
+      <div class="card-body">
+      
       <h5 class="card-title">{{.Title}}</h5>
       <p class="card-text">{{.Content}}</p>
-      <a href="/article/view/{{.Blog_id}}" class="btn btn-primary ">Read More</a>
+         </div>
+        
+         <i onclick="myFunction(this)" class="fa fa-thumbs-up"></i>
      
-    </div>
   </div>
 </div>
+<br>
+<hr>
+
 {{end}}
 
 {{ template "footer.html" .}}

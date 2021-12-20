@@ -1,6 +1,8 @@
 package main
 
-import _ "github.com/lib/pq"
+import (
+	_ "github.com/lib/pq"
+)
 
 func initializeRoutes() {
 
@@ -28,5 +30,11 @@ func initializeRoutes() {
 		articleRoutes.GET("/create", ensureLoggedIn(), showArticleCreationPage)
 
 		articleRoutes.POST("/create", ensureLoggedIn(), createArticle)
+
+		// articleRoutes.DELETE("/delete", deleteArticle)
+
+		// articleRoutes.PUT("/update", updateArticle)
+
 	}
+
 }

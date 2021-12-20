@@ -1,9 +1,12 @@
 
 {{ template "header.html" .}}
-<div class="container p-2">
-<h1>Register</h1>
 
-<div class="panel panel-default col-sm-6">
+  <h1  class="text-center">BLOG</h1>
+<div class="container p-2 " >
+  <h1 class="text-center">Register</h1>
+  <div class="d-flex justify-content-center">
+
+<div class="panel panel-default col-sm-6 ">
   <div class="panel-body ">
     {{ if .ErrorTitle}}
     <p class="badge bg-danger text-wrap">
@@ -12,13 +15,13 @@
     {{end}}
     <form class="form" action="/u/signup" method="POST">
    
-      <div class="form-group">
+      <div class="form-group ">
         <label for="name">Name</label>
         <input type="text" class="form-control" id="name" name="name" placeholder="name" required>
       </div>
       <div class="form-group">
         <label for="username">Username</label>
-        <input type="text" class="form-control" id="username" name="username" placeholder="Username must include @ " required>
+        <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
       </div>
       <div class="form-group">
         
@@ -27,11 +30,11 @@
       </div >
     
       <div class="pt-2">
-      <button type="submit" class="btn btn-primary ">Signup</button>
+      <button type="submit" class="btn btn-primary mt-2 ">Signup</button>
       </div>
     </form>
   </div>
 </div>  
 </div>
-    
+</div>
 {{ template "footer.html" .}}

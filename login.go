@@ -34,13 +34,19 @@ func login(c *gin.Context) {
 	fmt.Println(username, password)
 
 	if isUserValid(username, "qwerty123", password) {
+
 		fmt.Println("user is valid")
 		token := generateSessionToken()
 		c.SetCookie("token", token, 3600, "", "", false, true)
 		c.Set("is_logged_in", true)
-
+		emp := Article{}
+		res := []Article{}
+		res = append(res, emp)
 		render(c, gin.H{
-			"title": username + " you have been Successful Login"}, "login-successful.html")
+			"title": username,
+
+			"data": res},
+			"login-successful.html")
 
 	} else {
 
@@ -77,10 +83,6 @@ func isUserValid(username, pgPassword string, uPwd string) bool {
 			return false
 		}
 	}
-	// fmt.Println("password", tmp.Password)
-	// if tmp.Password == u.Password {
-	// 	return true
-	// }
 
 	fmt.Println(tmp.Username, tmp.Password)
 	if err = bcrypt.CompareHashAndPassword([]byte(tmp.Password), []byte(u.Password)); err != nil {

@@ -61,7 +61,7 @@ func register(c *gin.Context) {
 		c.Set("is_logged_in", true)
 
 		render(c, gin.H{
-			"title": username + "Successful registrated  & logged in   "}, "login-successful.html")
+			"title": username + " " + "Successful registrated  & logged in   "}, "login-successful.html")
 
 	} else {
 		fmt.Println("reg error", err)

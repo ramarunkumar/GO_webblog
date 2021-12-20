@@ -1,16 +1,16 @@
 
 {{ template "header.html" .}}
-
+{{range .payload}}
 <div class="container">
 
 <div class="card">
-    <h5 class="card-header">{{.payload.Blog_id}} </h5>
+    <h5 class="card-header">{{.Blog_id}} </h5>
     <div class="card-body">
-      <h5 class="card-title">{{.payload.Title}}</h5>
-      <p class="card-text">{{.payload.Content}}</p>
+      <h5 class="card-title">{{.Title}}</h5>
+      <p class="card-text">{{.Content}}</p>
       
     </div>
   </div>
 </div>
-
+{{end}}
 {{ template "footer.html" .}}
