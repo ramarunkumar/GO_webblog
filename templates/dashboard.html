@@ -1,0 +1,30 @@
+
+{{ template "header.html" .}}
+
+
+
+{{range.payload}}
+<div class="container pt-5">
+  <div class="card">
+    <div class="card-header">
+      <h3>{{.Blog_id}} @{{.Username}}</h3>
+    </div>
+      <div class="card-body">
+      <h5 class="card-title">{{.Title}} </h5>
+      <p class="card-text">{{.Content}}</p>
+      <td><a href="/article/update/{{.Blog_id}}">Edit</a></td>
+      <td><a href="/article/delete/{{.Blog_id}}">Delete</a>
+         </div>
+        
+         <i onclick="myFunction(this)" class="fa fa-thumbs-up"></i>
+     
+  </div>
+</div>
+<br>
+<hr>
+
+{{end}}
+
+{{ template "footer.html" .}}
+
+

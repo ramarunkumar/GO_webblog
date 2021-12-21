@@ -1,15 +1,11 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 )
-
-var err error
 
 const (
 	host     = "localhost"
@@ -28,18 +24,6 @@ func main() {
 	r.Static("/assets", "./assets")
 	initializeRoutes()
 	r.Run()
-}
-
-func dbCon() (db *sql.DB) {
-	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
-	db, err := sql.Open("postgres", dbinfo)
-	if err != nil {
-		fmt.Println("not connected....", err)
-	} else {
-		fmt.Println("connected...", db)
-	}
-	return db
-
 }
 
 func render(c *gin.Context, data gin.H, templateName string) {

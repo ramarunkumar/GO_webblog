@@ -13,8 +13,12 @@
       <li><a href="/u/login" class="btn btn-primary" >Login</a></li>
     {{end}} 
     {{ if .is_logged_in }}
+      <li><a href="/u/dashboard" class="btn btn-primary" >Dashboard</a></li>
+    {{end}}
+      {{ if .is_logged_in }}
       <li><a href="/u/logout" class="btn btn-primary" >Logout</a></li>
     {{end}}
+
   
  
 </nav>

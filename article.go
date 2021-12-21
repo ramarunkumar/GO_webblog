@@ -11,6 +11,57 @@ import (
 	_ "github.com/lib/pq"
 )
 
+//------------------------------------------------dashboard--------------------------------------------------//
+
+func dashboard(c *gin.Context) {
+	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
+	db, err := sql.Open("postgres", dbinfo)
+	if err != nil {
+		fmt.Println("not connected....", err)
+	} else {
+		fmt.Println("connected...", db)
+	}
+
+	row, err := db.Query("SELECT * from blog_user,blogs where id = article_id")
+	if err != nil {
+		fmt.Println("insert Error", err)
+	}
+
+	emp := Data{}
+	res := []Data{}
+
+	for row.Next() {
+		var article_id, blog_id int
+		var title, content string
+		var id int
+		var name, username, password string
+		err = row.Scan(&id, &name, &username, &password, &article_id, &blog_id, &title, &content)
+		if err != nil {
+			fmt.Println("scan error", err)
+		}
+		emp.Article_id = article_id
+		emp.Blog_id = blog_id
+		emp.Title = title
+		emp.Content = content
+		emp.ID = id
+		emp.Name = name
+		emp.Username = username
+		emp.Password = password
+
+		res = append(res, emp)
+
+	}
+	fmt.Println(len(res))
+
+	render(c, gin.H{
+		"title":   "Welcome to dashboard",
+		"payload": res},
+		"dashboard.html")
+
+}
+
+//--------------------------------------------------profile---------------------------------------------------//
+
 func showArticleCreationPage(c *gin.Context) {
 	render(c, gin.H{
 		"title": "Create New Article"}, "create-article.html")
@@ -26,35 +77,43 @@ func showIndexPage(c *gin.Context) {
 		fmt.Println("connected...", db)
 	}
 
-	row, err := db.Query("SELECT * from blogs ORDER BY blog_id ASC")
+	row, err := db.Query("SELECT * from blog_user,blogs where id = article_id")
 	if err != nil {
 		fmt.Println("insert Error", err)
 	}
 
-	emp := Article{}
-	res := []Article{}
+	emp := Data{}
+	res := []Data{}
 
 	for row.Next() {
-		var id, article_id, blog_id int
+		var article_id, blog_id int
 		var title, content string
-		err = row.Scan(&article_id, &blog_id, &title, &content)
+		var id int
+		var name, username, password string
+		err = row.Scan(&id, &name, &username, &password, &article_id, &blog_id, &title, &content)
 		if err != nil {
 			fmt.Println("scan error", err)
 		}
-		emp.Article_id = id
+		emp.Article_id = article_id
 		emp.Blog_id = blog_id
 		emp.Title = title
 		emp.Content = content
+		emp.ID = id
+		emp.Name = name
+		emp.Username = username
+		emp.Password = password
+
 		res = append(res, emp)
 
 	}
 	fmt.Println(len(res))
+
 	render(c, gin.H{
 		"title":   "Home Page",
 		"payload": res}, "index.html")
 }
 
-//---------------------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------//
 
 func createArticle(c *gin.Context) {
 	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
@@ -97,14 +156,12 @@ func createNewArticle(title, content string) (*Article, error) {
 	fmt.Println(row, db)
 
 	a := Article{Blog_id: len(articleList) + 1, Title: title, Content: content}
-
-	articleList = append(articleList, a)
 	fmt.Println(db)
 	return &a, nil
 
 }
 
-//------------------------------------------------------------------------------------------------------//
+//-----------------------------------------------getArticle-------------------------------------------------------//
 
 func getArticle(c *gin.Context) {
 	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
@@ -166,45 +223,19 @@ func getArticleByID(article_id int) (*Article, error) {
 	return nil, errors.New("Article not found")
 }
 
-//--------------------------------------------------------------------------------------------------------
-
-// func deleteArticle(c *gin.Context) {
-// 	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
-// 	db, err := sql.Open("postgres", dbinfo)
-// 	if err != nil {
-// 		fmt.Println("not connected....", err)
-// 	} else {
-// 		fmt.Println("connected...", db)
-// 	}
-// 	var article_id string
-// 	stmt := "DELETE FROM users WHERE id = $1;"
-
-// 	row := db.QueryRow(stmt, article_id)
-// 	if row != nil {
-// 		fmt.Println("deleted", row)
-// 	}
-
-// }
-
-// func updateArticle(c *gin.Context) {
-// 	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
-// 	db, err := sql.Open("postgres", dbinfo)
-// 	if err != nil {
-// 		fmt.Println("not connected....", err)
-// 	} else {
-// 		fmt.Println("connected...", db)
-// 	}
-// 	title := c.PostForm("title")
-// 	content := c.PostForm("content")
-// 	article_id := c.PostForm("article_id")
-// 	stmt := "UPDATE users SET title = $2, content = $3 WHERE article_id = $1;"
-
-// 	row := db.QueryRow(stmt, title, content)
-// 	if err != nil {
-// 		panic(err.Error())
-// 	} else {
-// 		fmt.Println(row)
-// 	}
-
-// 	log.Println("UPDATE:  title:"+title+"| content: "+content, article_id)
-// }
+//-------------------------------------------update-------------------------------------------------------------
+func update(c *gin.Context) {
+	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
+	db, err := sql.Open("postgres", dbinfo)
+	if err != nil {
+		fmt.Println("not connected....", err)
+	} else {
+		fmt.Println("connected...", db)
+	}
+	var title, content string
+	stmt := "UPDATE blogs SET title='" + title + "' content='" + content + "'"
+	row := db.QueryRow(stmt)
+	if row != nil {
+		fmt.Println("Update", row)
+	}
+}

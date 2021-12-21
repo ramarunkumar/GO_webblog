@@ -21,19 +21,20 @@ func initializeRoutes() {
 		u.GET("/signup", showRegistrationPage)
 
 		u.POST("/signup", register)
+
+		u.GET("/dashboard", dashboard)
+
 	}
 
 	articleRoutes := r.Group("/article")
 	{
 		articleRoutes.GET("/view/:article_id", getArticle)
 
-		articleRoutes.GET("/create", ensureLoggedIn(), showArticleCreationPage)
+		articleRoutes.GET("/create", showArticleCreationPage)
 
-		articleRoutes.POST("/create", ensureLoggedIn(), createArticle)
+		articleRoutes.POST("/create", createArticle)
 
-		// articleRoutes.DELETE("/delete", deleteArticle)
-
-		// articleRoutes.PUT("/update", updateArticle)
+		articleRoutes.POST("/update", update)
 
 	}
 

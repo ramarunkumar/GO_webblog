@@ -1,0 +1,25 @@
+{{ template "Header" }}
+
+{{.title}}
+<div class="container">
+    <div class="p-3 mb-2 bg-light text-dark" style="min-height:700px">
+        {{ template "Menu" }}
+
+        <h2>Update Data</h2>
+        <form method="POST" action="/article/update">
+
+            <input type="hidden" name="title" value="{{ .Title }}" />
+
+            <label class="form-label"> Title </label><input type="text" class="form-control" id="exampleInputEmail1"
+                name="name" value="{{ .Title }}" /><br />
+
+            <label class="form-label"> Content </label><input type="text" class="form-control" id="exampleInputEmail1"
+                name="city" value="{{ .Content }}" /><br />
+      
+
+            <input type="submit" class="btn btn-info" value="Save user" />
+        </form><br />
+
+    </div>
+</div>
+{{ template "Footer" }}

@@ -88,13 +88,13 @@ func registerNewUser(name, username, password string) (*User, error) {
 	// }
 
 	if len(password) < 8 && !strings.Contains(password, "@") {
-		return nil, errors.New("Password must 8 character and symbol @")
+		return nil, errors.New("password must 8 character and symbol @")
 	}
 
 	if strings.TrimSpace(password) == "" {
-		return nil, errors.New("The password can't be empty")
+		return nil, errors.New("the password can't be empty")
 	} else if UsernameAvailable(username) {
-		return nil, errors.New("The username isn't available")
+		return nil, errors.New("the username isn't available")
 	}
 
 	u := User{Name: name, Username: username, Password: password}
