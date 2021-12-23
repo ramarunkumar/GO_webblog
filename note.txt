@@ -6,6 +6,7 @@
   /* background-size: auto; */
 }
 </style> -->
+TRUNCATE <table name> RESTART IDENTITY;
 
 package main
 

@@ -34,7 +34,11 @@ func initializeRoutes() {
 
 		articleRoutes.POST("/create", createArticle)
 
+		articleRoutes.GET("/update", showupdate)
+
 		articleRoutes.POST("/update", update)
+
+		articleRoutes.POST("/delete", deleteArticle)
 
 	}
 

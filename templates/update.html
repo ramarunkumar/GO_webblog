@@ -1,25 +1,23 @@
-{{ template "Header" }}
+{{ template "header.html" .}}
 
-{{.title}}
-<div class="container">
-    <div class="p-3 mb-2 bg-light text-dark" style="min-height:700px">
-        {{ template "Menu" }}
 
-        <h2>Update Data</h2>
+
+<div class="container pt-3">
+    <div class="p-3 mb-2 bg-light text-dark " style="min-height:500px">
+
+        <h2>{{.para}}</h2>
         <form method="POST" action="/article/update">
 
-            <input type="hidden" name="title" value="{{ .Title }}" />
+            <label class="form-label"> Title </label>
+            <input type="text" class="form-control" name="title" value="" required/><br />
 
-            <label class="form-label"> Title </label><input type="text" class="form-control" id="exampleInputEmail1"
-                name="name" value="{{ .Title }}" /><br />
+            <textarea name="content" class="form-control" rows="10" id="content"  placeholder="Article Content" required></textarea>
 
-            <label class="form-label"> Content </label><input type="text" class="form-control" id="exampleInputEmail1"
-                name="city" value="{{ .Content }}" /><br />
-      
+            <input type="submit" class="btn btn-info mt-3" value="update " />
 
-            <input type="submit" class="btn btn-info" value="Save user" />
         </form><br />
 
     </div>
 </div>
-{{ template "Footer" }}
+
+{{ template "footer.html" .}}
