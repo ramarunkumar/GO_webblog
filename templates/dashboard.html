@@ -6,22 +6,62 @@
 <div class="container pt-5">
   <div class="card">
     <div class="card-header">
-      <h3>{{.Blog_id}} @{{.Username}}</h3>
+      <h3>Username: @{{.Username}}</h3>
+      <p>Blog_id: {{.Blog_id}} </p>
+
     </div>
     <div class="card-body">
+
+
       <h5 class="card-title">{{ .Title}} </h5>
       <p class="card-text">{{ .Content}}</p>
-      <td><a href="/article/update?blog_id={{ .Blog_id }}">Edit</a></td>
 
-      <td><a href="/article/delete?blog_id={{ .Blog_id }}">Delete</a>
+      <td><a href="/article/update?blog_id={{ .Blog_id }}">Edit</a></td>
+      <td><a href="/article/delete?blog_id={{ .Blog_id }}">Delete</a></td>
+
+
+      <a href="/article/delete?blog_id={{ .Blog_id }}" type="text-dark" data-bs-toggle="modal" data-bs-target="#exampleModal"
+        data-bs-whatever="@getbootstrap">Edit</a>
+      <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+
+              <div class="modal-body">
+
+
+                <form method="POST" action="/article/update?blog_id={{.Blog_id}}">
+                  <label class="form-label"> Blog id </label>
+
+                  <input type="text" class="form-control" name="blog_id" value="{{.Blog_id}}" readonly /><br />
+
+                  <label class="form-label"> Title </label>
+                  <input type="text" class="form-control" name="title" value="" required /><br />
+                  <label class="form-label"> Content </label>
+
+                  <input type="text" class="form-control" name="content" value="" required /><br />
+
+
+                  <input type="submit" class="btn btn-info mt-3" value="update " />
+
+                </form>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+
     </div>
-   
-    <i onclick="myFunction(this)" class="fa fa-thumbs-up"></i>
+
 
   </div>
 </div>
 <br>
 <hr>
+
+
 
 {{end}}
 

@@ -28,7 +28,6 @@ func initializeRoutes() {
 
 	articleRoutes := r.Group("/article")
 	{
-		articleRoutes.GET("/view/:article_id", getArticle)
 
 		articleRoutes.GET("/create", showArticleCreationPage)
 
