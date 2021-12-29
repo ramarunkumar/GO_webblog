@@ -1,22 +1,25 @@
 {{ template "header.html" .}}
 
-{{.}}
-{{.payload}}
-{{.d}}
-
+{{.para}}
+{{range .payload}}
+{{.Blog_id}}
+{{end}}
 <div class="container pt-3">
     <div class="p-3 mb-2 bg-light text-dark " style="min-height:500px">
 
-        <h2>{{.para}}</h2>
-        <form method="POST" action="/article/update">
+
+        <form method="POST" action="/article/update/:{{.Blog_id}}">
+            parameters
             <label class="form-label"> Blog id </label>
-           
-            <input type="text" class="form-control" name="blog_id" value="{{.payload.Blog_id}}" readonly/><br />
 
+            {{range .payload}}
+            <input type="text" class="form-control" name="blog_id" value="{{.Blog_id}}" readonly /><br />
+            {{end}}
             <label class="form-label"> Title </label>
-            <input type="text" class="form-control" name="title" value="" required/><br />
+            <input type="text" class="form-control" name="title" value="{{.Title}}" required /><br />
 
-            <textarea name="content" class="form-control" rows="10" id="content"  placeholder="Article Content" required></textarea>
+            <textarea name="content" class="form-control" rows="10" id="content" value="{{.Content}}"
+                required></textarea>
 
             <input type="submit" class="btn btn-info mt-3" value="update " />
 

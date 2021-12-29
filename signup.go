@@ -83,9 +83,6 @@ func registerNewUser(name, username, password string) (*User, error) {
 	} else {
 		fmt.Println(" no error", db)
 	}
-	// if !strings.Contains(username, "@") {
-	// 	return nil, errors.New("username must @")
-	// }
 
 	if len(password) < 8 && !strings.Contains(password, "@") {
 		return nil, errors.New("password must 8 character and symbol @")
