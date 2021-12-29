@@ -180,11 +180,10 @@ func editArticle(c *gin.Context) {
 
 	emp := Article{}
 	res := []Article{}
-	blog := c.Request.URL.Query()
-	if blog != nil {
-		fmt.Print("Blog id: ", blog)
-	}
 
+	blog_id := c.Query("blog_id")
+
+	fmt.Println("blog id", blog_id)
 	for row.Next() {
 
 		var blog_id, article_id int
@@ -205,7 +204,7 @@ func editArticle(c *gin.Context) {
 
 	render(c, gin.H{
 
-		"blog":    blog,
+		"blog":    blog_id,
 		"payload": res}, "update.html")
 }
 
@@ -263,11 +262,14 @@ func deleteArticle(c *gin.Context) {
 		fmt.Println("connected...", db)
 	}
 	fmt.Println("Delete")
-	var blog_id int
 
-	row := db.QueryRow("DELETE FROM blogs WHERE blog_id = 3;").Scan(&blog_id)
+	blog_id := c.Query("blog_id")
+
+	fmt.Println("blog id", blog_id)
+
+	row := db.QueryRow("DELETE FROM blogs WHERE blog_id = '" + blog_id + "'").Scan(&blog_id)
 	if row != nil {
-
+		fmt.Println(row)
 		render(c, gin.H{
 			"payload": row}, "delete.html")
 	} else {
