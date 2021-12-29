@@ -53,7 +53,8 @@ func dashboard(c *gin.Context) {
 	fmt.Println(len(res))
 
 	render(c, gin.H{
-		"title":   "Welcome to dashboard",
+		"title": "Welcome to dashboard",
+
 		"payload": res},
 		"dashboard.html")
 
@@ -164,6 +165,7 @@ func createNewArticle(title, content string) (*Article, error) {
 
 func editArticle(c *gin.Context) {
 	fmt.Println("show")
+
 	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
 	db, err := sql.Open("postgres", dbinfo)
 	if err != nil {
@@ -178,8 +180,13 @@ func editArticle(c *gin.Context) {
 
 	emp := Article{}
 	res := []Article{}
+	blog := c.Request.URL.Query()
+	if blog != nil {
+		fmt.Print("Blog id: ", blog)
+	}
 
 	for row.Next() {
+
 		var blog_id, article_id int
 		var title, content string
 
@@ -187,6 +194,7 @@ func editArticle(c *gin.Context) {
 		if err != nil {
 			fmt.Println("scan error", err)
 		}
+		fmt.Println(blog_id)
 		emp.Blog_id = blog_id
 		emp.Title = title
 		emp.Content = content
@@ -196,7 +204,8 @@ func editArticle(c *gin.Context) {
 	}
 
 	render(c, gin.H{
-		"para":    emp.Blog_id,
+
+		"blog":    blog,
 		"payload": res}, "update.html")
 }
 
@@ -210,10 +219,13 @@ func update(c *gin.Context) {
 	} else {
 		fmt.Println("connected...", db)
 	}
-	// blog_id := c.Param("blog_id")
+	blog := c.Request.URL.Query()
+	if blog != nil {
+		fmt.Print(blog)
+	}
 
 	blog_id := c.PostForm("blog_id")
-	fmt.Println("blog id", blog_id)
+
 	title := c.PostForm("title")
 	content := c.PostForm("content")
 	u := Data{Title: title, Content: content}
@@ -221,13 +233,15 @@ func update(c *gin.Context) {
 
 	stmt := "UPDATE  blogs SET title='" + title + "',content='" + content + "' WHERE blog_id = '" + blog_id + "'"
 
-	fmt.Println(stmt, blog_id)
-	row := db.QueryRow(stmt)
+	fmt.Println(stmt, blog)
+
+	row := db.QueryRow(stmt).Scan(&blog_id)
+
 	fmt.Println("blog_id:", blog_id, "title:", title, "content:", content)
 	if row != nil {
 		fmt.Println("update succesfully", row)
 		render(c, gin.H{
-			"titles": blog_id + " title " + title + "Content" + content + "update Successful",
+			"titles": "blog:" + blog_id + " title " + title + "Content" + content + "   update Successful",
 
 			"payload": u}, "submission-successful.html")
 		fmt.Println(title, content)

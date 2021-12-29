@@ -1,20 +1,18 @@
 {{ template "header.html" .}}
 
 {{.para}}
-{{range .payload}}
-{{.Blog_id}}
-{{end}}
+{{.data}}
 <div class="container pt-3">
     <div class="p-3 mb-2 bg-light text-dark " style="min-height:500px">
 
 
-        <form method="POST" action="/article/update/:{{.Blog_id}}">
-            parameters
+        <form method="POST" action="/article/update?blog_id={{.Blog_id}}">
+
             <label class="form-label"> Blog id </label>
 
-            {{range .payload}}
-            <input type="text" class="form-control" name="blog_id" value="{{.Blog_id}}" readonly /><br />
-            {{end}}
+
+            <input type="text" class="form-control" name="blog_id" id="demo" value="{{.blog}}"  /><br />
+
             <label class="form-label"> Title </label>
             <input type="text" class="form-control" name="title" value="{{.Title}}" required /><br />
 
@@ -28,5 +26,18 @@
     </div>
 </div>
 
-
+<p  id="demo"></p>
+<script>
+    window.onload = function () {
+        try {
+            var url_string = (window.location.href).toLowerCase();
+            var url = new URL(url_string);
+            var blog_id = url.searchParams.get("blog_id");
+            console.log('blog_id',blog_id);
+            document.getElementById("demo").innerHTML = blog_id;
+        } catch (err) {
+            console.log("Issues with Parsing URL Parameter's - " + err);
+        }
+}
+</script>
 {{ template "footer.html" .}}
