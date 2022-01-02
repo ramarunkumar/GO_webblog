@@ -10,19 +10,20 @@
     </div>
     <div class="card-body">
       <h5 class="card-title">{{ .Title}} </h5>
-      <p class="card-text">{{ .Content}}</p>
-      <td><a href="/article/update?blog_id={{.Blog_id}}">Edit</a></td>
-      <td><a href="/article/delete?blog_id={{.Blog_id}}">Delete</a></td>
+      <p class="card-text">{{ .Content}} </p>
+      <td><a type="button" class="btn btn-primary"
+          href="/article/update?blog_id={{.Blog_id}}&title={{.Title}}&content={{.Content}}">Edit</a></td>
+      <a class="btn btn-primary" href="/article/delete?blog_id={{.Blog_id}}&title={{.Title}}&content={{.Content}}"
+        onclick="return confirm('Are you sure you want to delete this item')">Delete</a>
+
+
     </div>
   </div>
 </div>
 
 <br>
 <hr>
-
-
-
-
 {{end}}
+
 
 {{ template "footer.html" .}}

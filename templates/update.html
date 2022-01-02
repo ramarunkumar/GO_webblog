@@ -1,12 +1,10 @@
 {{ template "header.html" .}}
 
-{{.para}}
-{{.data}}
 <div class="container pt-3">
     <div class="p-3 mb-2 bg-light text-dark " style="min-height:500px">
 
 
-        <form method="POST" action="/article/update?blog_id={{.blog }}">
+        <form method="POST" action="/article/update?blog_id={{.blog }}&title={{.title}}&content={{.content}}">
 
             <label class="form-label"> Blog id </label>
 
@@ -14,10 +12,9 @@
             <input type="text" class="form-control" name="blog_id" id="demo" value="{{.blog}}" readonly /><br />
 
             <label class="form-label"> Title </label>
-            <input type="text" class="form-control" name="title" value="{{.Title}}" required /><br />
+            <input type="text" class="form-control" name="title" value="{{.title}}" required /><br />
 
-            <textarea name="content" class="form-control" rows="10" id="content" value="{{.Content}}"
-                required></textarea>
+            <textarea type="textarea" name="content" class="form-control" rows="10" id="ta" required>{{.content}}</textarea>
 
             <input type="submit" class="btn btn-info mt-3" value="update " />
 
@@ -26,18 +23,19 @@
     </div>
 </div>
 
-<p  id="demo"></p>
+<p id="demo"></p>
 <script>
     window.onload = function () {
         try {
             var url_string = (window.location.href).toLowerCase();
             var url = new URL(url_string);
             var blog_id = url.searchParams.get("blog_id");
-            console.log('blog_id',blog_id);
+            console.log('blog_id', blog_id);
             document.getElementById("demo").innerHTML = blog_id;
         } catch (err) {
             console.log("Issues with Parsing URL Parameter's - " + err);
         }
-}
+    }
 </script>
+
 {{ template "footer.html" .}}

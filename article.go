@@ -3,58 +3,48 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/gorilla/mux"
-	_ "github.com/lib/pq"
 )
 
 //------------------------------------------------dashboard--------------------------------------------------//
 
 func dashboard(c *gin.Context) {
-	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
-	db, err := sql.Open("postgres", dbinfo)
+	db, err := sql.Open("postgres", "postgres://postgres:qwerty123@localhost:5432/web_blog")
 	if err != nil {
-		fmt.Println("not connected....", err)
-	} else {
-		fmt.Println("connected...", db)
+		fmt.Println("could not connect to database: ", err)
 	}
+	id := c.Query("id")
+	article := c.Query("article")
+	//row, err := db.Query("SELECT * FROM blog_user,blogs WHERE blog_user.id='" + id + "' AND blogs.article_id='" + article_id + "';")
 
-	row, err := db.Query("SELECT * from blog_user,blogs Where id= article_id ORDER BY blog_id Asc ")
+	row, err := db.Query("SELECT * from blog_user,blogs Where '" + id + "'= '" + article + "' ORDER BY blog_id Asc ")
 	if err != nil {
 		fmt.Println("insert Error", err)
 	}
 
-	emp := Data{}
+	// emp := Data{}
 	res := []Data{}
 
 	for row.Next() {
-		var article_id, blog_id int
-		var title, content string
-		var id int
-		var name, username, password string
-		err = row.Scan(&id, &name, &username, &password, &article_id, &blog_id, &title, &content)
+		emp := Data{}
+
+		err = row.Scan(&emp.ID, &emp.Name, &emp.Username, &emp.Password, &emp.Article_id, &emp.Blog_id, &emp.Title, &emp.Content)
 		if err != nil {
 			fmt.Println("scan error", err)
 		}
-		emp.Article_id = article_id
-		emp.Blog_id = blog_id
-		emp.Title = title
-		emp.Content = content
-		emp.ID = id
-		emp.Name = name
-		emp.Username = username
-		emp.Password = password
 
 		res = append(res, emp)
 
 	}
-	fmt.Println(len(res))
-
+	// fmt.Println(res)
+	fmt.Println("id", id, "article:", article, id)
 	render(c, gin.H{
-		"title": "Welcome to dashboard",
-
+		"title":   "Welcome to dashboard",
+		"article": article,
+		"id":      id,
 		"payload": res},
 		"dashboard.html")
 
@@ -68,39 +58,27 @@ func showArticleCreationPage(c *gin.Context) {
 }
 
 func showIndexPage(c *gin.Context) {
-	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
-	db, err := sql.Open("postgres", dbinfo)
+
+	db, err := sql.Open("postgres", "postgres://postgres:qwerty123@localhost:5432/web_blog")
 	if err != nil {
-		fmt.Println("not connected....", err)
-	} else {
-		fmt.Println("connected...", db)
+		log.Fatalf("could not connect to database: %v", err)
 	}
 
-	row, err := db.Query("SELECT * from blog_user,blogs where id = article_id ORDER by blog_id ASC")
+	row, err := db.Query("SELECT * from blogs ORDER BY blog_id ASC ")
 	if err != nil {
 		fmt.Println("insert Error", err)
 	}
 
-	emp := Data{}
+	// emp := Data{}
 	res := []Data{}
 
 	for row.Next() {
-		var article_id, blog_id int
-		var title, content string
-		var id int
-		var name, username, password string
-		err = row.Scan(&id, &name, &username, &password, &article_id, &blog_id, &title, &content)
+		emp := Data{}
+
+		err = row.Scan(&emp.Article_id, &emp.Blog_id, &emp.Title, &emp.Content)
 		if err != nil {
 			fmt.Println("scan error", err)
 		}
-		emp.Article_id = article_id
-		emp.Blog_id = blog_id
-		emp.Title = title
-		emp.Content = content
-		emp.ID = id
-		emp.Name = name
-		emp.Username = username
-		emp.Password = password
 
 		res = append(res, emp)
 
@@ -115,10 +93,10 @@ func showIndexPage(c *gin.Context) {
 //--------------------------------------------------createArticle-------------------------------------------------------//
 
 func createArticle(c *gin.Context) {
-	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
-	db, err := sql.Open("postgres", dbinfo)
+	db, err := sql.Open("postgres", "postgres://postgres:qwerty123@localhost:5432/web_blog")
 	if err != nil {
-		fmt.Println("not connected....", err)
+		fmt.Println("could not connect to database: ", err)
+
 	} else {
 		fmt.Println("connected...", db)
 	}
@@ -136,19 +114,19 @@ func createArticle(c *gin.Context) {
 }
 
 func createNewArticle(title, content string) (*Article, error) {
-	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
-	db, err := sql.Open("postgres", dbinfo)
+	db, err := sql.Open("postgres", "postgres://postgres:qwerty123@localhost:5432/web_blog")
 	if err != nil {
-		fmt.Println("not connected....", err)
+		fmt.Println("could not connect to database: ", err)
+
 	} else {
 		fmt.Println("connected...", db)
 	}
 	var articleList = []Article{}
 
 	fmt.Println("title", title+"||"+"content", content)
-	stmt := "INSERT INTO blogs(title, content) VALUES ('" + title + "','" + content + "') "
+	stmt := "INSERT INTO blogs(title, content) VALUES ($1,$2)"
 	fmt.Println(stmt)
-	row := db.QueryRow(stmt).Scan(&title, &content)
+	row := db.QueryRow(stmt, title, content).Scan(&title, &content)
 
 	if row != nil {
 		fmt.Println("inserted succesfully", row)
@@ -166,10 +144,10 @@ func createNewArticle(title, content string) (*Article, error) {
 func editArticle(c *gin.Context) {
 	fmt.Println("show")
 
-	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
-	db, err := sql.Open("postgres", dbinfo)
+	db, err := sql.Open("postgres", "postgres://postgres:qwerty123@localhost:5432/web_blog")
 	if err != nil {
-		fmt.Println("not connected....", err)
+		fmt.Println("could not connect to database: ", err)
+
 	} else {
 		fmt.Println("connected...", db)
 	}
@@ -178,43 +156,41 @@ func editArticle(c *gin.Context) {
 		fmt.Println("insert Error", err)
 	}
 
-	emp := Article{}
 	res := []Article{}
 
 	blog_id := c.Query("blog_id")
+	title := c.Query("title")
+	content := c.Query("content")
 
 	fmt.Println("blog id", blog_id)
 	for row.Next() {
+		emp := Article{}
 
-		var blog_id, article_id int
-		var title, content string
-
-		err = row.Scan(&article_id, &blog_id, &title, &content)
+		err = row.Scan(&emp.Article_id, &emp.Blog_id, &emp.Title, &emp.Content)
 		if err != nil {
 			fmt.Println("scan error", err)
 		}
 		fmt.Println(blog_id)
-		emp.Blog_id = blog_id
-		emp.Title = title
-		emp.Content = content
-		emp.Article_id = article_id
-		res = append(res, emp)
 
+		res = append(res, emp)
 	}
+
+	fmt.Println("emp", len(res))
 
 	render(c, gin.H{
 
 		"blog":    blog_id,
+		"title":   title,
+		"content": content,
+
 		"payload": res}, "update.html")
 }
 
 //------------------------------------------------update-------------------------------------------------------------//
 func update(c *gin.Context) {
-	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
-	db, err := sql.Open("postgres", dbinfo)
-
+	db, err := sql.Open("postgres", "postgres://postgres:qwerty123@localhost:5432/web_blog")
 	if err != nil {
-		fmt.Println("not connected....", err)
+		fmt.Println("could not connect to database: ", err)
 	} else {
 		fmt.Println("connected...", db)
 	}
@@ -228,13 +204,10 @@ func update(c *gin.Context) {
 	title := c.PostForm("title")
 	content := c.PostForm("content")
 	u := Data{Title: title, Content: content}
-	fmt.Println(u)
 
-	stmt := "UPDATE  blogs SET title='" + title + "',content='" + content + "' WHERE blog_id = '" + blog_id + "'"
+	stmt := "UPDATE  blogs SET title= $1, content=$2 WHERE blog_id = '" + blog_id + "'"
 
-	fmt.Println(stmt, blog)
-
-	row := db.QueryRow(stmt).Scan(&blog_id)
+	row := db.QueryRow(stmt, title, content).Scan(&blog_id)
 
 	fmt.Println("blog_id:", blog_id, "title:", title, "content:", content)
 	if row != nil {
@@ -243,7 +216,7 @@ func update(c *gin.Context) {
 			"titles": "blog:" + blog_id + " title " + title + "Content" + content + "   update Successful",
 
 			"payload": u}, "submission-successful.html")
-		fmt.Println(title, content)
+
 	} else {
 
 		c.HTML(http.StatusNotFound, "errors/404", nil)
@@ -254,10 +227,9 @@ func update(c *gin.Context) {
 }
 
 func deleteArticle(c *gin.Context) {
-	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
-	db, err := sql.Open("postgres", dbinfo)
+	db, err := sql.Open("postgres", "postgres://postgres:qwerty123@localhost:5432/web_blog")
 	if err != nil {
-		fmt.Println("not connected....", err)
+		log.Fatalf("could not connect to database: ", err)
 	} else {
 		fmt.Println("connected...", db)
 	}
