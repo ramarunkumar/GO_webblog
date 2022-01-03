@@ -21,13 +21,6 @@ func showLoginPage(c *gin.Context) {
 }
 
 func login(c *gin.Context) {
-	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
-	db, err := sql.Open("postgres", dbinfo)
-	if db != nil {
-		fmt.Println("login db error", err)
-	} else {
-		fmt.Println("login db no error", db)
-	}
 
 	username := c.PostForm("username")
 	password := c.PostForm("password")
@@ -58,12 +51,9 @@ func login(c *gin.Context) {
 }
 
 func isUserValid(username, pgPassword string, uPwd string) bool {
-	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, pgPassword, dbname)
-	db, err := sql.Open("postgres", dbinfo)
-	if db != nil {
-		fmt.Println("isuservalid db ", db)
-	} else {
-		fmt.Println("isuservalid db error", err)
+	db, err := sql.Open("postgres", "postgres://postgres:qwerty123@localhost:5432/web_blog")
+	if err != nil {
+		fmt.Println("could not connect to database: ", err)
 	}
 
 	u := User{Username: username, Password: uPwd}

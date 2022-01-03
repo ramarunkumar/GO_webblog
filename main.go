@@ -7,14 +7,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-const (
-	host     = "localhost"
-	port     = 5432
-	users    = "postgres"
-	password = "qwerty123"
-	dbname   = "web_blog"
-)
-
 var r *gin.Engine
 
 func main() {

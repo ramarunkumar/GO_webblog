@@ -21,12 +21,9 @@ func showRegistrationPage(c *gin.Context) {
 
 func register(c *gin.Context) {
 
-	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
-	db, err := sql.Open("postgres", dbinfo)
-	if db != nil {
-		fmt.Println("register database error", err)
-	} else {
-		fmt.Println("register database no error", db)
+	db, err := sql.Open("postgres", "postgres://postgres:qwerty123@localhost:5432/web_blog")
+	if err != nil {
+		fmt.Println("could not connect to database: ", err)
 	}
 
 	name := c.PostForm("name")
@@ -61,7 +58,7 @@ func register(c *gin.Context) {
 		c.Set("is_logged_in", true)
 
 		render(c, gin.H{
-			"title": username + " " + "Successful registrated  & logged in   "}, "login-successful.html")
+			"title": username + " " + "Successful registrated  & logged in again  "}, "login.html")
 
 	} else {
 		fmt.Println("reg error", err)
@@ -76,14 +73,6 @@ func register(c *gin.Context) {
 
 func registerNewUser(name, username, password string) (*User, error) {
 
-	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
-	db, err := sql.Open("postgres", dbinfo)
-	if err != nil {
-		fmt.Println(" db error", err)
-	} else {
-		fmt.Println(" no error", db)
-	}
-
 	if len(password) < 8 && !strings.Contains(password, "@") {
 		return nil, errors.New("password must 8 character and symbol @")
 	}
@@ -95,21 +84,15 @@ func registerNewUser(name, username, password string) (*User, error) {
 	}
 
 	u := User{Name: name, Username: username, Password: password}
-	fmt.Println("registernew user", db)
 
 	return &u, nil
 }
 
 func UsernameAvailable(username string) bool {
-	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, users, password, dbname)
-	db, err := sql.Open("postgres", dbinfo)
-
+	db, err := sql.Open("postgres", "postgres://postgres:qwerty123@localhost:5432/web_blog")
 	if err != nil {
-		fmt.Println(" db error", err)
-	} else {
-		fmt.Println("  no error", db)
+		fmt.Println("could not connect to database: ", err)
 	}
-	// SELECT password FROM public.users WHERE username='ram';
 
 	stmt := "SELECT username FROM blog_user WHERE username = ('" + username + "')"
 	err = db.QueryRow(stmt).Scan(&username)
