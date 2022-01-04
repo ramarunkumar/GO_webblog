@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -16,17 +15,16 @@ func dashboard(c *gin.Context) {
 	if err != nil {
 		fmt.Println("could not connect to database: ", err)
 	}
-
-	// row, err := db.Query("SELECT * FROM blog_user,blogs WHERE id=1 AND article_id=")
-	id := c.Query("id")
-	article := c.Query("article_id")
-	fmt.Println("id", id, "\narticle:", article)
-	row, err := db.Query("SELECT * from blog_user,blog WHERE id = article_id")
+	ID := c.Query("ID")
+	article_id := c.Query("article_id")
+	fmt.Println("id", ID+"\narticle", article_id)
+	stmt := "SELECT * from blog_user,blog WHERE '" + ID + "' = '" + article_id + "' ORDER BY blog_id ASC"
+	row, err := db.Query("SELECT * from blog_user,blog WHERE '" + ID + "' = '" + article_id + "' ORDER BY blog_id ASC")
 	if err != nil {
 		fmt.Println("insert Error", err)
 	}
+	fmt.Println("........id", article_id+"\narticle"+ID, "\n", row, stmt)
 
-	// emp := Data{}
 	res := []Data{}
 
 	for row.Next() {
@@ -38,15 +36,11 @@ func dashboard(c *gin.Context) {
 		}
 
 		res = append(res, emp)
-
 	}
-
 	render(c, gin.H{
-		"title": "Welcome to dashboard",
-
+		"title":   "Welcome to dashboard",
 		"payload": res},
 		"dashboard.html")
-
 }
 
 //--------------------------------------------------profile---------------------------------------------------//
@@ -60,7 +54,7 @@ func showIndexPage(c *gin.Context) {
 
 	db, err := sql.Open("postgres", "postgres://postgres:qwerty123@localhost:5432/web_blog")
 	if err != nil {
-		log.Fatalf("could not connect to database: %v", err)
+		fmt.Println("could not connect to database: ", err)
 	}
 
 	row, err := db.Query("SELECT * from blog ORDER BY blog_id ASC ")
@@ -68,7 +62,6 @@ func showIndexPage(c *gin.Context) {
 		fmt.Println("insert Error", err)
 	}
 
-	// emp := Data{}
 	res := []Data{}
 
 	for row.Next() {
@@ -116,9 +109,6 @@ func createNewArticle(title, content string) (*Article, error) {
 	db, err := sql.Open("postgres", "postgres://postgres:qwerty123@localhost:5432/web_blog")
 	if err != nil {
 		fmt.Println("could not connect to database: ", err)
-
-	} else {
-		fmt.Println("connected...", db)
 	}
 	var articleList = []Article{}
 
@@ -141,14 +131,9 @@ func createNewArticle(title, content string) (*Article, error) {
 //-------------------------------------------update-------------------------------------------------------------
 
 func editArticle(c *gin.Context) {
-	fmt.Println("show")
-
 	db, err := sql.Open("postgres", "postgres://postgres:qwerty123@localhost:5432/web_blog")
 	if err != nil {
 		fmt.Println("could not connect to database: ", err)
-
-	} else {
-		fmt.Println("connected...", db)
 	}
 	row, err := db.Query("SELECT * from blog")
 	if err != nil {
@@ -169,12 +154,10 @@ func editArticle(c *gin.Context) {
 		if err != nil {
 			fmt.Println("scan error", err)
 		}
-		fmt.Println(blog_id)
 
 		res = append(res, emp)
 	}
-
-	fmt.Println("emp", len(res))
+	fmt.Println(blog_id)
 
 	render(c, gin.H{
 
@@ -190,8 +173,6 @@ func update(c *gin.Context) {
 	db, err := sql.Open("postgres", "postgres://postgres:qwerty123@localhost:5432/web_blog")
 	if err != nil {
 		fmt.Println("could not connect to database: ", err)
-	} else {
-		fmt.Println("connected...", db)
 	}
 	blog := c.Request.URL.Query()
 	if blog != nil {
@@ -229,9 +210,8 @@ func deleteArticle(c *gin.Context) {
 	db, err := sql.Open("postgres", "postgres://postgres:qwerty123@localhost:5432/web_blog")
 	if err != nil {
 		fmt.Println("could not connect to database: ", err)
-	} else {
-		fmt.Println("connected...", db)
 	}
+
 	fmt.Println("Delete")
 
 	blog_id := c.Query("blog_id")

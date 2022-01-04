@@ -20,5 +20,8 @@
 <hr>
 
 {{end}}
-
+{{range .payload}}
+<li><a  href="/u/dashboard?ID={{.ID}}& Article_id={{.Article_id}}" class="btn btn-primary">Dashboard</a>
+</li>
+{{end}}
 {{ template "footer.html" .}}

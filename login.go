@@ -29,16 +29,15 @@ func login(c *gin.Context) {
 	if isUserValid(username, "qwerty123", password) {
 
 		fmt.Println("user is valid")
+		fmt.Println(username)
 		token := generateSessionToken()
 		c.SetCookie("token", token, 3600, "", "", false, true)
 		c.Set("is_logged_in", true)
-		emp := Article{}
-		res := []Article{}
-		res = append(res, emp)
-		render(c, gin.H{
-			"title": username,
 
-			"data": res},
+		render(c, gin.H{
+
+			"username": username},
+
 			"login-successful.html")
 
 	} else {
