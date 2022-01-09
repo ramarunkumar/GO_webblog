@@ -15,15 +15,11 @@ func dashboard(c *gin.Context) {
 	if err != nil {
 		fmt.Println("could not connect to database: ", err)
 	}
-	ID := c.Query("ID")
-	article_id := c.Query("article_id")
-	fmt.Println("id", ID+"\narticle", article_id)
-	stmt := "SELECT * from blog_user,blog WHERE '" + ID + "' = '" + article_id + "' ORDER BY blog_id ASC"
-	row, err := db.Query("SELECT * from blog_user,blog WHERE '" + ID + "' = '" + article_id + "' ORDER BY blog_id ASC")
+
+	row, err := db.Query("SELECT * from blog_user,blog WHERE id=1 AND article_id=1 ORDER BY blog_id ASC")
 	if err != nil {
 		fmt.Println("insert Error", err)
 	}
-	fmt.Println("........id", article_id+"\narticle"+ID, "\n", row, stmt)
 
 	res := []Data{}
 
